@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#243447" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Job Cards" />
+  <title>Workshop Job Card Generator</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">SouthWorx</p>
+      <h1>Workshop Job Card Generator</h1>
+      <p class="subtitle">Create professional job cards from your phone, tablet or desktop.</p>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="card form-card">
+      <div class="section-header">
+        <h2>Job Details</h2>
+        <p>Fill in the form below. The job card updates automatically.</p>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Company / Workshop</span>
+          <input id="companyName" type="text" placeholder="Your workshop name" />
+        </label>
+
+        <label>
+          <span>Job Number</span>
+          <input id="jobNumber" type="text" placeholder="J-0001" />
+        </label>
+
+        <label>
+          <span>Date</span>
+          <input id="jobDate" type="date" />
+        </label>
+
+        <label>
+          <span>Engineer</span>
+          <input id="engineer" type="text" placeholder="Engineer name" />
+        </label>
+
+        <label>
+          <span>Labour Hours</span>
+          <input id="labourHours" type="text" inputmode="decimal" placeholder="3.5" />
+        </label>
+
+        <label>
+          <span>Machine Hours</span>
+          <input id="machineHours" type="text" inputmode="numeric" placeholder="4280" />
+        </label>
+      </div>
+
+      <hr />
+
+      <div class="section-header compact">
+        <h2>Customer</h2>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Customer Name</span>
+          <input id="customerName" type="text" placeholder="Customer / business name" />
+        </label>
+
+        <label>
+          <span>Contact Details</span>
+          <input id="contactDetails" type="text" placeholder="Phone or email" />
+        </label>
+      </div>
+
+      <label>
+        <span>Address</span>
+        <textarea id="address" rows="3" placeholder="Customer address"></textarea>
+      </label>
+
+      <hr />
+
+      <div class="section-header compact">
+        <h2>Machine / Asset</h2>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Machine / Asset</span>
+          <input id="machine" type="text" placeholder="Machine make/model" />
+        </label>
+
+        <label>
+          <span>Serial Number</span>
+          <input id="serialNumber" type="text" placeholder="Serial number" />
+        </label>
+      </div>
+
+      <hr />
+
+      <div class="section-header compact">
+        <h2>Work Notes</h2>
+      </div>
+
+      <label>
+        <span>Fault Reported</span>
+        <textarea id="faultReported" rows="4" placeholder="What fault was reported?"></textarea>
+      </label>
+
+      <label>
+        <span>Work Carried Out</span>
+        <textarea id="workCarriedOut" rows="5" placeholder="What work was completed?"></textarea>
+      </label>
+
+      <label>
+        <span>Parts Used</span>
+        <textarea id="partsUsed" rows="4" placeholder="Parts, quantities and consumables"></textarea>
+      </label>
+
+      <label>
+        <span>Additional Notes</span>
+        <textarea id="notes" rows="4" placeholder="Any extra notes or customer advice"></textarea>
+      </label>
+
+      <div class="button-row">
+        <button class="btn primary" id="printBtn" type="button">Print / Save PDF</button>
+        <button class="btn" id="emailBtn" type="button">Send Email</button>
+        <button class="btn" id="sampleBtn" type="button">Load Sample</button>
+        <button class="btn danger" id="clearBtn" type="button">Clear</button>
+      </div>
+
+      <p class="small-note">
+        On iPhone/iPad: use <strong>Share → Add to Home Screen</strong> once this is hosted online.
+      </p>
+    </section>
+
+    <section class="preview-wrap">
+      <div class="preview-toolbar">
+        <h2>Live Preview</h2>
+        <span id="saveStatus">Saved locally</span>
+      </div>
+
+      <article class="job-card" id="jobCard">
+        <div class="job-card-top">
+          <div>
+            <h2 data-preview="companyName">Your Workshop Name</h2>
+            <p>Professional Workshop Job Card</p>
+          </div>
+          <div class="job-number-box">
+            <span>JOB CARD</span>
+            <strong data-preview="jobNumber">-</strong>
+          </div>
+        </div>
+
+        <div class="accent-line"></div>
+
+        <div class="info-grid three">
+          <div>
+            <span>Date</span>
+            <strong data-preview="jobDate">-</strong>
+          </div>
+          <div>
+            <span>Engineer</span>
+            <strong data-preview="engineer">-</strong>
+          </div>
+          <div>
+            <span>Labour Hours</span>
+            <strong data-preview="labourHours">-</strong>
+          </div>
+        </div>
+
+        <h3>Customer</h3>
+        <div class="info-grid two">
+          <div>
+            <span>Customer Name</span>
+            <strong data-preview="customerName">-</strong>
+            <span>Contact Details</span>
+            <strong data-preview="contactDetails">-</strong>
+          </div>
+          <div>
+            <span>Address</span>
+            <strong data-preview="address">-</strong>
+          </div>
+        </div>
+
+        <h3>Machine / Asset</h3>
+        <div class="info-grid three">
+          <div>
+            <span>Machine / Asset</span>
+            <strong data-preview="machine">-</strong>
+          </div>
+          <div>
+            <span>Serial Number</span>
+            <strong data-preview="serialNumber">-</strong>
+          </div>
+          <div>
+            <span>Machine Hours</span>
+            <strong data-preview="machineHours">-</strong>
+          </div>
+        </div>
+
+        <h3>Fault Reported</h3>
+        <div class="text-box" data-preview="faultReported">-</div>
+
+        <h3>Work Carried Out</h3>
+        <div class="text-box large" data-preview="workCarriedOut">-</div>
+
+        <h3>Parts Used</h3>
+        <div class="text-box" data-preview="partsUsed">-</div>
+
+        <h3>Additional Notes</h3>
+        <div class="text-box" data-preview="notes">-</div>
+
+        <div class="signature-grid">
+          <div>
+            <span>Engineer Signature</span>
+            <div class="signature-line"></div>
+          </div>
+          <div>
+            <span>Customer Signature</span>
+            <div class="signature-line"></div>
+          </div>
+        </div>
+
+        <p class="footer-note">Generated by Workshop Job Card Generator</p>
+      </article>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

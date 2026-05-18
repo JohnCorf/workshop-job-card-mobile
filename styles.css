@@ -1,0 +1,401 @@
+:root {
+  --bg: #eceff3;
+  --panel: #ffffff;
+  --ink: #2b2b2b;
+  --muted: #6b7280;
+  --accent: #3b6ea5;
+  --accent-dark: #243447;
+  --line: #d5dae1;
+  --input: #f9fafb;
+  --danger: #b84a3a;
+  --shadow: 0 18px 50px rgba(30, 41, 59, 0.10);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(59, 110, 165, 0.12), transparent 32rem),
+    var(--bg);
+}
+
+.app-header {
+  padding: calc(18px + env(safe-area-inset-top)) 18px 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
+  letter-spacing: -0.04em;
+}
+
+.eyebrow {
+  margin: 0 0 5px;
+  color: var(--accent);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.app-shell {
+  width: min(1420px, 100%);
+  margin: 0 auto;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: minmax(340px, 480px) 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.card,
+.preview-wrap {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.form-card {
+  padding: 18px;
+}
+
+.section-header {
+  margin-bottom: 14px;
+}
+
+.section-header.compact {
+  margin-bottom: 10px;
+}
+
+.section-header h2,
+.preview-toolbar h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.section-header p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 20px 0;
+}
+
+.grid {
+  display: grid;
+  gap: 12px;
+}
+
+.grid.two {
+  grid-template-columns: 1fr 1fr;
+}
+
+label {
+  display: block;
+  margin-bottom: 12px;
+}
+
+label span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin: 0 0 5px;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--input);
+  color: var(--ink);
+  padding: 11px 12px;
+  font: inherit;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 110, 165, 0.13);
+}
+
+.button-row {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  padding: 11px 15px;
+  font-weight: 800;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.btn.danger {
+  color: var(--danger);
+  border-color: rgba(184, 74, 58, 0.35);
+}
+
+.small-note {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.preview-wrap {
+  padding: 18px;
+  overflow: hidden;
+}
+
+.preview-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.preview-toolbar span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.job-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 34px;
+}
+
+.job-card-top {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  align-items: start;
+}
+
+.job-card-top h2 {
+  margin: 0;
+  font-size: 1.55rem;
+}
+
+.job-card-top p {
+  margin: 5px 0 0;
+  color: var(--muted);
+}
+
+.job-number-box {
+  border: 2px solid var(--accent);
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.job-number-box span {
+  display: block;
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.job-number-box strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 1rem;
+}
+
+.accent-line {
+  height: 3px;
+  background: var(--accent);
+  margin: 20px 0 18px;
+}
+
+.info-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.info-grid.two {
+  grid-template-columns: 1fr 1fr;
+}
+
+.info-grid.three {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.info-grid span,
+.signature-grid span {
+  display: block;
+  color: #5f6670;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+
+.info-grid strong {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  margin-bottom: 10px;
+}
+
+.job-card h3 {
+  margin: 16px 0 7px;
+  color: var(--accent);
+  text-transform: uppercase;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+}
+
+.text-box {
+  border: 1px solid var(--line);
+  min-height: 76px;
+  padding: 11px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.text-box.large {
+  min-height: 106px;
+}
+
+.signature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  margin-top: 24px;
+}
+
+.signature-line {
+  height: 38px;
+  border: 1px solid #b8c0cc;
+}
+
+.footer-note {
+  margin: 22px 0 0;
+  text-align: center;
+  color: #8a94a3;
+  font-size: 0.72rem;
+}
+
+@media (max-width: 920px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-wrap {
+    order: -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .app-header {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .app-shell {
+    padding: 12px;
+  }
+
+  .form-card,
+  .preview-wrap {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .grid.two,
+  .info-grid.two,
+  .info-grid.three,
+  .job-card-top,
+  .signature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .job-card {
+    padding: 22px;
+  }
+
+  .button-row .btn {
+    width: 100%;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .app-header,
+  .form-card,
+  .preview-toolbar {
+    display: none !important;
+  }
+
+  .app-shell {
+    display: block;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+
+  .preview-wrap {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .job-card {
+    width: 100%;
+    border: 0;
+    padding: 18mm;
+  }
+}
