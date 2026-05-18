@@ -1,1 +1,183 @@
-const accessPassword="lurch2026";const accessStorageKey="southworx-job-card-access-v2";const fields=["companyName","jobNumber","jobDate","engineer","labourHours","machineHours","customerName","contactDetails","address","machine","serialNumber","faultReported","workCarriedOut","notes"];const storageKey="southworx-workshop-job-card-v2";let parts=[];const today=new Date().toISOString().slice(0,10);function unlockApp(){const entered=document.getElementById("accessCode").value.trim();const error=document.getElementById("lockError");if(entered===accessPassword){localStorage.setItem(accessStorageKey,"unlocked");showApp()}else{error.textContent="Incorrect access code."}}function showApp(){document.getElementById("lockScreen").style.display="none";document.getElementById("appContent").classList.remove("locked")}function checkAccess(){if(localStorage.getItem(accessStorageKey)==="unlocked")showApp()}function clean(value){return value&&value.trim()?value.trim():"-"}function formatDate(value){if(!value)return"-";const date=new Date(value+"T00:00:00");return date.toLocaleDateString("en-GB")}function getJobComplete(){const selected=document.querySelector('input[name="jobComplete"]:checked');return selected?selected.value:"no"}function getData(){const data={};fields.forEach(id=>{data[id]=document.getElementById(id).value});data.jobComplete=getJobComplete();data.parts=parts;return data}function setData(data){fields.forEach(id=>{const el=document.getElementById(id);if(el&&data[id]!==undefined)el.value=data[id]});if(data.jobComplete){const radio=document.querySelector(`input[name="jobComplete"][value="${data.jobComplete}"]`);if(radio)radio.checked=true}parts=Array.isArray(data.parts)?data.parts:[];if(parts.length===0)parts=[{partNumber:"",description:"",quantity:""}];renderPartsEditor();updatePreview()}function updatePreview(){const data=getData();document.querySelectorAll("[data-preview]").forEach(el=>{const key=el.getAttribute("data-preview");let value=data[key];if(key==="companyName"&&!clean(value).replace("-","")){el.textContent="Your Workshop Name";return}if(key==="jobDate"){el.textContent=formatDate(value);return}el.textContent=clean(value)});const status=document.getElementById("previewStatus");if(data.jobComplete==="yes"){status.textContent="COMPLETE";status.classList.add("complete")}else{status.textContent="IN PROGRESS";status.classList.remove("complete")}renderPartsPreview();localStorage.setItem(storageKey,JSON.stringify(data));document.getElementById("saveStatus").textContent="Saved locally"}function renderPartsEditor(){const list=document.getElementById("partsList");list.innerHTML="";parts.forEach((part,index)=>{const row=document.createElement("div");row.className="part-row";row.innerHTML=`<div class="part-row-grid"><label><span>Part Number</span><input type="text" value="${escapeHtml(part.partNumber)}" data-part-field="partNumber" data-part-index="${index}" placeholder="e.g. 123456" /></label><label><span>Description</span><input type="text" value="${escapeHtml(part.description)}" data-part-field="description" data-part-index="${index}" placeholder="Part description" /></label><label><span>Qty</span><input type="text" inputmode="numeric" value="${escapeHtml(part.quantity)}" data-part-field="quantity" data-part-index="${index}" placeholder="1" /></label><button class="btn danger part-delete" type="button" data-delete-part="${index}">Delete</button></div>`;list.appendChild(row)});list.querySelectorAll("[data-part-field]").forEach(input=>{input.addEventListener("input",event=>{const index=Number(event.target.dataset.partIndex);const field=event.target.dataset.partField;parts[index][field]=event.target.value;updatePreview()})});list.querySelectorAll("[data-delete-part]").forEach(button=>{button.addEventListener("click",event=>{const index=Number(event.target.dataset.deletePart);parts.splice(index,1);if(parts.length===0)parts.push({partNumber:"",description:"",quantity:""});renderPartsEditor();updatePreview()})})}function renderPartsPreview(){const preview=document.getElementById("partsPreview");const usableParts=parts.filter(part=>clean(part.partNumber)!=="-"||clean(part.description)!=="-"||clean(part.quantity)!=="-");if(usableParts.length===0){preview.innerHTML='<div class="parts-empty">-</div>';return}const rows=usableParts.map(part=>`<tr><td>${escapeHtml(clean(part.partNumber))}</td><td>${escapeHtml(clean(part.description))}</td><td>${escapeHtml(clean(part.quantity))}</td></tr>`).join("");preview.innerHTML=`<table><thead><tr><th>Part Number</th><th>Description</th><th>Qty</th></tr></thead><tbody>${rows}</tbody></table>`}function addPart(){parts.push({partNumber:"",description:"",quantity:""});renderPartsEditor();updatePreview()}function loadSaved(){const saved=localStorage.getItem(storageKey);if(!saved){parts=[{partNumber:"",description:"",quantity:""}];renderPartsEditor();return}try{const data=JSON.parse(saved);setData(data)}catch{localStorage.removeItem(storageKey);parts=[{partNumber:"",description:"",quantity:""}];renderPartsEditor()}}function loadSample(){setData({companyName:"SouthWorx Workshop Services",jobNumber:"J-000124",jobDate:today,engineer:"J. Smith",labourHours:"3.5",machineHours:"4,280",jobComplete:"yes",customerName:"Greenfield Farm",contactDetails:"office@example.co.uk / 01234 567890",address:"Greenfield Farm\nWinchester Road\nHampshire",machine:"Massey Ferguson Large Square Baler",serialNumber:"MF2270-123456",faultReported:"Customer reported inconsistent knotter performance and intermittent missed bales during operation.",workCarriedOut:"Inspected knotter assembly, checked twine path, adjusted tension settings, cleaned debris from knotter area and carried out operational test.",parts:[{partNumber:"TW-2451",description:"Twine disc",quantity:"2"},{partNumber:"SP-1098",description:"Knotter spring",quantity:"1"},{partNumber:"CONS",description:"Workshop consumables",quantity:"1"}],notes:"Machine tested after adjustment. Customer advised to monitor knotter performance during next working session."})}function clearForm(){fields.forEach(id=>{document.getElementById(id).value=""});document.getElementById("jobDate").value=today;document.querySelector('input[name="jobComplete"][value="no"]').checked=true;parts=[{partNumber:"",description:"",quantity:""}];renderPartsEditor();updatePreview()}function sendEmail(){const data=getData();const usableParts=parts.filter(part=>clean(part.partNumber)!=="-"||clean(part.description)!=="-"||clean(part.quantity)!=="-");const partsText=usableParts.length?usableParts.map(part=>`Part Number: ${clean(part.partNumber)} | Description: ${clean(part.description)} | Qty: ${clean(part.quantity)}`).join("\n"):"-";const subject=`Workshop Job Card ${clean(data.jobNumber)} - ${clean(data.customerName)}`;const body=["Workshop Job Card","",`Status: ${data.jobComplete==="yes"?"Complete":"In Progress"}`,`Company: ${clean(data.companyName)}`,`Job Number: ${clean(data.jobNumber)}`,`Date: ${formatDate(data.jobDate)}`,`Engineer: ${clean(data.engineer)}`,`Labour Hours: ${clean(data.labourHours)}`,"",`Customer: ${clean(data.customerName)}`,`Contact: ${clean(data.contactDetails)}`,`Address: ${clean(data.address)}`,"",`Machine: ${clean(data.machine)}`,`Serial Number: ${clean(data.serialNumber)}`,`Machine Hours: ${clean(data.machineHours)}`,"","Fault Reported:",clean(data.faultReported),"","Work Carried Out:",clean(data.workCarriedOut),"","Parts Used:",partsText,"","Additional Notes:",clean(data.notes),"","Note: To send a PDF copy, use Print / Save PDF first and attach the saved PDF manually."].join("\n");window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`}function escapeHtml(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}document.getElementById("unlockBtn").addEventListener("click",unlockApp);document.getElementById("accessCode").addEventListener("keydown",event=>{if(event.key==="Enter")unlockApp()});fields.forEach(id=>{document.getElementById(id).addEventListener("input",updatePreview)});document.querySelectorAll('input[name="jobComplete"]').forEach(radio=>{radio.addEventListener("change",updatePreview)});document.getElementById("addPartBtn").addEventListener("click",addPart);document.getElementById("printBtn").addEventListener("click",()=>window.print());document.getElementById("emailBtn").addEventListener("click",sendEmail);document.getElementById("sampleBtn").addEventListener("click",loadSample);document.getElementById("clearBtn").addEventListener("click",clearForm);document.getElementById("jobDate").value=today;checkAccess();loadSaved();updatePreview();if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("./service-worker.js").catch(()=>{})})}
+const accessPassword = "lurch2026";
+const accessStorageKey = "southworx-job-card-access-v3";
+const storageKey = "southworx-workshop-current-job-v3";
+const jobsKey = "southworx-workshop-saved-jobs-v3";
+const customersKey = "southworx-workshop-customers-v3";
+
+const fields = ["companyName","jobNumber","jobDate","engineer","labourHours","machineHours","customerName","contactDetails","address","machine","serialNumber","faultReported","workCarriedOut","notes"];
+let parts = [];
+let scanningPartIndex = null;
+let scannerStream = null;
+let scannerTimer = null;
+const today = new Date().toISOString().slice(0,10);
+
+function qs(id){return document.getElementById(id);}
+function clean(v){return v && String(v).trim() ? String(v).trim() : "-";}
+function formatDate(v){if(!v)return "-";return new Date(v+"T00:00:00").toLocaleDateString("en-GB");}
+function escapeHtml(v){return String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");}
+function makeId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+function unlockApp(){const entered=qs("accessCode").value.trim();if(entered===accessPassword){localStorage.setItem(accessStorageKey,"unlocked");showApp();}else{qs("lockError").textContent="Incorrect access code.";}}
+function showApp(){qs("lockScreen").style.display="none";qs("appContent").classList.remove("locked");}
+function checkAccess(){if(localStorage.getItem(accessStorageKey)==="unlocked")showApp();}
+
+function getJobComplete(){return document.querySelector('input[name="jobComplete"]:checked')?.value || "no";}
+function getData(){
+  const data={}; fields.forEach(id=>data[id]=qs(id).value);
+  data.jobComplete=getJobComplete(); data.parts=parts; data.updatedAt=new Date().toISOString();
+  return data;
+}
+function setData(data){
+  fields.forEach(id=>{if(qs(id)&&data[id]!==undefined)qs(id).value=data[id];});
+  const radio=document.querySelector(`input[name="jobComplete"][value="${data.jobComplete||"no"}"]`); if(radio)radio.checked=true;
+  parts=Array.isArray(data.parts)&&data.parts.length?data.parts:[{partNumber:"",description:"",quantity:""}];
+  renderPartsEditor(); updatePreview();
+}
+function loadSavedCurrent(){
+  const saved=localStorage.getItem(storageKey);
+  if(saved){try{setData(JSON.parse(saved));return;}catch{localStorage.removeItem(storageKey);}}
+  qs("jobDate").value=today; parts=[{partNumber:"",description:"",quantity:""}]; renderPartsEditor(); updatePreview();
+}
+
+function updatePreview(){
+  const data=getData();
+  document.querySelectorAll("[data-preview]").forEach(el=>{
+    const key=el.getAttribute("data-preview");
+    if(key==="companyName" && clean(data[key])==="-"){el.textContent="Your Workshop Name";return;}
+    el.textContent=key==="jobDate"?formatDate(data[key]):clean(data[key]);
+  });
+  const status=qs("previewStatus");
+  if(data.jobComplete==="yes"){status.textContent="COMPLETE";status.classList.add("complete");}else{status.textContent="IN PROGRESS";status.classList.remove("complete");}
+  renderPartsPreview();
+  localStorage.setItem(storageKey,JSON.stringify(data));
+  qs("saveStatus").textContent="Saved locally";
+}
+
+function renderPartsEditor(){
+  const list=qs("partsList"); list.innerHTML="";
+  parts.forEach((part,index)=>{
+    const div=document.createElement("div"); div.className="part-card";
+    div.innerHTML=`
+      <div class="part-card-top">
+        <div class="part-card-title">Part ${index+1}</div>
+        <button class="btn danger small" type="button" data-delete-part="${index}">Delete</button>
+      </div>
+      <div class="part-card-grid">
+        <label><span>Part Number</span><input type="text" value="${escapeHtml(part.partNumber)}" data-part-field="partNumber" data-part-index="${index}" placeholder="e.g. 123456" /></label>
+        <label><span>Description</span><input type="text" value="${escapeHtml(part.description)}" data-part-field="description" data-part-index="${index}" placeholder="Part description" /></label>
+        <label><span>Qty</span><input type="text" inputmode="numeric" value="${escapeHtml(part.quantity)}" data-part-field="quantity" data-part-index="${index}" placeholder="1" /></label>
+      </div>
+      <div class="part-card-actions">
+        <button class="btn small" type="button" data-scan-part="${index}">Scan Barcode</button>
+      </div>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll("[data-part-field]").forEach(input=>input.addEventListener("input",e=>{const i=+e.target.dataset.partIndex;parts[i][e.target.dataset.partField]=e.target.value;updatePreview();}));
+  list.querySelectorAll("[data-delete-part]").forEach(btn=>btn.addEventListener("click",e=>{parts.splice(+e.target.dataset.deletePart,1);if(!parts.length)parts.push({partNumber:"",description:"",quantity:""});renderPartsEditor();updatePreview();}));
+  list.querySelectorAll("[data-scan-part]").forEach(btn=>btn.addEventListener("click",e=>startScanner(+e.target.dataset.scanPart)));
+}
+function renderPartsPreview(){
+  const usable=parts.filter(p=>clean(p.partNumber)!=="-"||clean(p.description)!=="-"||clean(p.quantity)!=="-");
+  if(!usable.length){qs("partsPreview").innerHTML='<div class="parts-empty">-</div>';return;}
+  qs("partsPreview").innerHTML=usable.map((p,i)=>`
+    <div class="preview-part-card">
+      <div class="preview-part-grid">
+        <div><span>Part Number</span><strong>${escapeHtml(clean(p.partNumber))}</strong></div>
+        <div><span>Description</span><strong>${escapeHtml(clean(p.description))}</strong></div>
+        <div><span>Qty</span><strong>${escapeHtml(clean(p.quantity))}</strong></div>
+      </div>
+    </div>`).join("");
+}
+function addPart(){parts.push({partNumber:"",description:"",quantity:""});renderPartsEditor();updatePreview();}
+
+function getSavedJobs(){try{return JSON.parse(localStorage.getItem(jobsKey))||[];}catch{return[];}}
+function setSavedJobs(jobs){localStorage.setItem(jobsKey,JSON.stringify(jobs));renderSavedJobs();}
+function saveJob(){
+  const data=getData(); const jobs=getSavedJobs();
+  const existing=jobs.findIndex(j=>j.jobNumber && j.jobNumber===data.jobNumber);
+  const record={...data,id:existing>=0?jobs[existing].id:makeId(),savedAt:new Date().toISOString()};
+  if(existing>=0)jobs[existing]=record; else jobs.unshift(record);
+  setSavedJobs(jobs); qs("saveStatus").textContent="Job saved";
+}
+function renderSavedJobs(){
+  const list=qs("savedJobsList"), jobs=getSavedJobs(); list.innerHTML="";
+  if(!jobs.length){list.innerHTML='<p class="helper">No saved jobs yet.</p>';return;}
+  jobs.forEach(j=>{
+    const row=document.createElement("div"); row.className="saved-item";
+    row.innerHTML=`<div><strong>${escapeHtml(clean(j.jobNumber))} — ${escapeHtml(clean(j.customerName))}</strong><span>${formatDate(j.jobDate)} · ${escapeHtml(clean(j.machine))}</span></div><button class="btn small" data-load-job="${j.id}">Load</button><button class="btn danger small" data-delete-job="${j.id}">Delete</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll("[data-load-job]").forEach(b=>b.onclick=()=>{const job=getSavedJobs().find(j=>j.id===b.dataset.loadJob);if(job)setData(job);});
+  list.querySelectorAll("[data-delete-job]").forEach(b=>b.onclick=()=>setSavedJobs(getSavedJobs().filter(j=>j.id!==b.dataset.deleteJob)));
+}
+function exportJob(){
+  const data=getData(); const filename=`job-card-${clean(data.jobNumber).replaceAll(" ","-")}.json`;
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename; a.click(); URL.revokeObjectURL(a.href);
+}
+function importJob(file){
+  if(!file)return; const reader=new FileReader();
+  reader.onload=()=>{try{setData(JSON.parse(reader.result));qs("saveStatus").textContent="Job imported";}catch{alert("Could not import this job file.");}};
+  reader.readAsText(file);
+}
+
+function getCustomers(){try{return JSON.parse(localStorage.getItem(customersKey))||[];}catch{return[];}}
+function setCustomers(c){localStorage.setItem(customersKey,JSON.stringify(c));renderCustomers();}
+function saveCustomer(){
+  const c={id:makeId(),customerName:qs("customerName").value,contactDetails:qs("contactDetails").value,address:qs("address").value,machine:qs("machine").value,serialNumber:qs("serialNumber").value};
+  if(clean(c.customerName)==="-"){alert("Enter a customer name first.");return;}
+  const customers=getCustomers().filter(x=>x.customerName!==c.customerName); customers.unshift(c); setCustomers(customers);
+}
+function renderCustomers(){
+  const list=qs("customerList"), customers=getCustomers(); list.innerHTML="";
+  if(!customers.length){list.innerHTML='<p class="helper">No customers saved yet.</p>';return;}
+  customers.forEach(c=>{
+    const row=document.createElement("div"); row.className="saved-item";
+    row.innerHTML=`<div><strong>${escapeHtml(clean(c.customerName))}</strong><span>${escapeHtml(clean(c.contactDetails))}</span></div><button class="btn small" data-load-customer="${c.id}">Use</button><button class="btn danger small" data-delete-customer="${c.id}">Delete</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll("[data-load-customer]").forEach(b=>b.onclick=()=>{const c=getCustomers().find(x=>x.id===b.dataset.loadCustomer);if(c){["customerName","contactDetails","address","machine","serialNumber"].forEach(id=>qs(id).value=c[id]||"");updatePreview();}});
+  list.querySelectorAll("[data-delete-customer]").forEach(b=>b.onclick=()=>setCustomers(getCustomers().filter(c=>c.id!==b.dataset.deleteCustomer)));
+}
+
+async function startScanner(index){
+  scanningPartIndex=index;
+  if(!("BarcodeDetector" in window)){alert("Barcode scanning is not supported in this browser yet. You can still type the part number manually.");return;}
+  try{
+    qs("scannerModal").classList.remove("hidden"); qs("scannerStatus").textContent="Starting camera...";
+    scannerStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+    qs("scannerVideo").srcObject=scannerStream; await qs("scannerVideo").play();
+    const detector=new BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code"]});
+    scannerTimer=setInterval(async()=>{try{const codes=await detector.detect(qs("scannerVideo"));if(codes.length){parts[scanningPartIndex].partNumber=codes[0].rawValue;stopScanner();renderPartsEditor();updatePreview();}}catch{}},700);
+    qs("scannerStatus").textContent="Point the camera at the barcode.";
+  }catch{stopScanner();alert("Camera could not be opened. Check browser permissions.");}
+}
+function stopScanner(){
+  if(scannerTimer)clearInterval(scannerTimer); scannerTimer=null;
+  if(scannerStream)scannerStream.getTracks().forEach(t=>t.stop()); scannerStream=null;
+  qs("scannerVideo").srcObject=null; qs("scannerModal").classList.add("hidden");
+}
+
+function clearForm(){
+  fields.forEach(id=>qs(id).value=""); qs("jobDate").value=today; document.querySelector('input[name="jobComplete"][value="no"]').checked=true;
+  parts=[{partNumber:"",description:"",quantity:""}]; renderPartsEditor(); updatePreview();
+}
+function loadSample(){
+  setData({companyName:"SouthWorx Workshop Services",jobNumber:"J-000124",jobDate:today,engineer:"J. Smith",labourHours:"3.5",machineHours:"4,280",jobComplete:"yes",customerName:"Greenfield Farm",contactDetails:"office@example.co.uk / 01234 567890",address:"Greenfield Farm\nWinchester Road\nHampshire",machine:"Massey Ferguson Large Square Baler",serialNumber:"MF2270-123456",faultReported:"Customer reported inconsistent knotter performance and intermittent missed bales during operation.",workCarriedOut:"Inspected knotter assembly, checked twine path, adjusted tension settings, cleaned debris from knotter area and carried out operational test.",parts:[{partNumber:"TW-2451",description:"Twine disc",quantity:"2"},{partNumber:"SP-1098",description:"Knotter spring",quantity:"1"},{partNumber:"CONS",description:"Workshop consumables",quantity:"1"}],notes:"Machine tested after adjustment. Customer advised to monitor knotter performance during next working session."});
+}
+function sendEmail(){
+  const d=getData(); const usable=parts.filter(p=>clean(p.partNumber)!=="-"||clean(p.description)!=="-"||clean(p.quantity)!=="-");
+  const partsText=usable.length?usable.map(p=>`Part Number: ${clean(p.partNumber)} | Description: ${clean(p.description)} | Qty: ${clean(p.quantity)}`).join("\n"):"-";
+  const subject=`Workshop Job Card ${clean(d.jobNumber)} - ${clean(d.customerName)}`;
+  const body=["Workshop Job Card","",`Status: ${d.jobComplete==="yes"?"Complete":"In Progress"}`,`Company: ${clean(d.companyName)}`,`Job Number: ${clean(d.jobNumber)}`,`Date: ${formatDate(d.jobDate)}`,`Engineer: ${clean(d.engineer)}`,`Labour Hours: ${clean(d.labourHours)}`,"",`Customer: ${clean(d.customerName)}`,`Contact: ${clean(d.contactDetails)}`,`Address: ${clean(d.address)}`,"",`Machine: ${clean(d.machine)}`,`Serial Number: ${clean(d.serialNumber)}`,`Machine Hours: ${clean(d.machineHours)}`,"","Fault Reported:",clean(d.faultReported),"","Work Carried Out:",clean(d.workCarriedOut),"","Parts Used:",partsText,"","Additional Notes:",clean(d.notes),"","Note: To send a PDF copy, use Print / Save PDF first and attach the saved PDF manually."].join("\n");
+  window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+qs("unlockBtn").onclick=unlockApp; qs("accessCode").onkeydown=e=>{if(e.key==="Enter")unlockApp();};
+fields.forEach(id=>qs(id).addEventListener("input",updatePreview));
+document.querySelectorAll('input[name="jobComplete"]').forEach(r=>r.addEventListener("change",updatePreview));
+qs("addPartBtn").onclick=addPart; qs("printBtn").onclick=()=>window.print(); qs("emailBtn").onclick=sendEmail; qs("sampleBtn").onclick=loadSample; qs("clearBtn").onclick=clearForm;
+qs("saveJobBtn").onclick=saveJob; qs("exportJobBtn").onclick=exportJob; qs("importJobInput").onchange=e=>importJob(e.target.files[0]); qs("saveCustomerBtn").onclick=saveCustomer; qs("closeScannerBtn").onclick=stopScanner;
+qs("jobDate").value=today; checkAccess(); loadSavedCurrent(); renderSavedJobs(); renderCustomers(); updatePreview();
+
+if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));}

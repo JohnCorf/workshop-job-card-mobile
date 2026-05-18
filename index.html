@@ -11,13 +11,17 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <section class="lock-screen" id="lockScreen">
     <div class="lock-card">
       <p class="eyebrow">SouthWorx</p>
       <h1>Workshop Job Card Generator</h1>
       <p class="subtitle">Enter your access code to open the app.</p>
-      <label><span>Access Code</span><input id="accessCode" type="password" placeholder="Enter access code" /></label>
+      <label>
+        <span>Access Code</span>
+        <input id="accessCode" type="password" autocomplete="current-password" placeholder="Enter access code" />
+      </label>
       <button class="btn primary full" id="unlockBtn" type="button">Unlock App</button>
       <p class="lock-error" id="lockError"></p>
     </div>
@@ -25,80 +29,225 @@
 
   <div class="app-content locked" id="appContent">
     <header class="app-header">
-      <p class="eyebrow">SouthWorx</p>
-      <h1>Workshop Job Card Generator</h1>
-      <p class="subtitle">Create professional job cards from your phone, tablet or desktop.</p>
+      <div>
+        <p class="eyebrow">SouthWorx</p>
+        <h1>Workshop Job Card Generator</h1>
+        <p class="subtitle">Create, save and email professional job cards from your phone, tablet or desktop.</p>
+      </div>
     </header>
 
     <main class="app-shell">
       <section class="card form-card">
-        <div class="section-header"><h2>Job Details</h2><p>Fill in the form below. The job card updates automatically.</p></div>
-        <div class="grid two">
-          <label><span>Company / Workshop</span><input id="companyName" type="text" placeholder="Your workshop name" /></label>
-          <label><span>Job Number</span><input id="jobNumber" type="text" placeholder="J-0001" /></label>
-          <label><span>Date</span><input id="jobDate" type="date" /></label>
-          <label><span>Engineer</span><input id="engineer" type="text" placeholder="Engineer name" /></label>
-          <label><span>Labour Hours</span><input id="labourHours" type="text" inputmode="decimal" placeholder="3.5" /></label>
-          <label><span>Machine Hours</span><input id="machineHours" type="text" inputmode="numeric" placeholder="4280" /></label>
+        <div class="section-header">
+          <h2>Job Details</h2>
+          <p>Fill in the form below. The job card updates automatically.</p>
         </div>
 
-        <div class="status-choice"><span>Job Complete?</span><div class="radio-row">
-          <label class="radio-card"><input type="radio" name="jobComplete" value="yes" /><span>Yes</span></label>
-          <label class="radio-card"><input type="radio" name="jobComplete" value="no" checked /><span>No</span></label>
-        </div></div>
+        <div class="quick-actions">
+          <button class="btn primary" id="saveJobBtn" type="button">Save Job</button>
+          <button class="btn" id="exportJobBtn" type="button">Export Job</button>
+          <label class="btn file-btn">
+            Import Job
+            <input id="importJobInput" type="file" accept="application/json,.json" hidden />
+          </label>
+        </div>
+
+        <details class="manager-box">
+          <summary>Saved Jobs</summary>
+          <div class="manager-content">
+            <div id="savedJobsList" class="saved-list"></div>
+          </div>
+        </details>
+
+        <details class="manager-box">
+          <summary>Customer Database</summary>
+          <div class="manager-content">
+            <p class="helper">Save regular customers and reuse them on future job cards.</p>
+            <div class="quick-actions">
+              <button class="btn" id="saveCustomerBtn" type="button">Save Current Customer</button>
+            </div>
+            <div id="customerList" class="saved-list"></div>
+          </div>
+        </details>
 
         <hr />
+
+        <div class="grid two">
+          <label>
+            <span>Company / Workshop</span>
+            <input id="companyName" type="text" placeholder="Your workshop name" />
+          </label>
+          <label>
+            <span>Job Number</span>
+            <input id="jobNumber" type="text" placeholder="J-0001" />
+          </label>
+          <label>
+            <span>Date</span>
+            <input id="jobDate" type="date" />
+          </label>
+          <label>
+            <span>Engineer</span>
+            <input id="engineer" type="text" placeholder="Engineer name" />
+          </label>
+          <label>
+            <span>Labour Hours</span>
+            <input id="labourHours" type="text" inputmode="decimal" placeholder="3.5" />
+          </label>
+          <label>
+            <span>Machine Hours</span>
+            <input id="machineHours" type="text" inputmode="numeric" placeholder="4280" />
+          </label>
+        </div>
+
+        <div class="status-choice">
+          <span>Job Complete?</span>
+          <div class="radio-row">
+            <label class="radio-card"><input type="radio" name="jobComplete" value="yes" /><span>Yes</span></label>
+            <label class="radio-card"><input type="radio" name="jobComplete" value="no" checked /><span>No</span></label>
+          </div>
+        </div>
+
+        <hr />
+
         <div class="section-header compact"><h2>Customer</h2></div>
         <div class="grid two">
-          <label><span>Customer Name</span><input id="customerName" type="text" placeholder="Customer / business name" /></label>
-          <label><span>Contact Details</span><input id="contactDetails" type="text" placeholder="Phone or email" /></label>
+          <label>
+            <span>Customer Name</span>
+            <input id="customerName" type="text" placeholder="Customer / business name" />
+          </label>
+          <label>
+            <span>Contact Details</span>
+            <input id="contactDetails" type="text" placeholder="Phone or email" />
+          </label>
         </div>
-        <label><span>Address</span><textarea id="address" rows="3" placeholder="Customer address"></textarea></label>
+        <label>
+          <span>Address</span>
+          <textarea id="address" rows="3" placeholder="Customer address"></textarea>
+        </label>
 
         <hr />
+
         <div class="section-header compact"><h2>Machine</h2></div>
         <div class="grid two">
-          <label><span>Machine</span><input id="machine" type="text" placeholder="Machine make/model" /></label>
-          <label><span>Serial Number</span><input id="serialNumber" type="text" placeholder="Serial number" /></label>
+          <label>
+            <span>Machine</span>
+            <input id="machine" type="text" placeholder="Machine make/model" />
+          </label>
+          <label>
+            <span>Serial Number</span>
+            <input id="serialNumber" type="text" placeholder="Serial number" />
+          </label>
         </div>
 
         <hr />
-        <div class="section-header compact"><h2>Work Notes</h2></div>
-        <label><span>Fault Reported</span><textarea id="faultReported" rows="4" placeholder="What fault was reported?"></textarea></label>
-        <label><span>Work Carried Out</span><textarea id="workCarriedOut" rows="5" placeholder="What work was completed?"></textarea></label>
 
-        <div class="parts-header"><div><h2>Parts Used</h2><p>Add each part separately for a cleaner job card.</p></div><button class="btn small" id="addPartBtn" type="button">Add Part</button></div>
+        <div class="section-header compact"><h2>Work Notes</h2></div>
+        <label>
+          <span>Fault Reported</span>
+          <textarea id="faultReported" rows="4" placeholder="What fault was reported?"></textarea>
+        </label>
+        <label>
+          <span>Work Carried Out</span>
+          <textarea id="workCarriedOut" rows="5" placeholder="What work was completed?"></textarea>
+        </label>
+
+        <div class="parts-header">
+          <div>
+            <h2>Parts Used</h2>
+            <p>Use Add Part to create clear part cards for the job card.</p>
+          </div>
+          <button class="btn small primary" id="addPartBtn" type="button">+ Add Part</button>
+        </div>
+
         <div class="parts-list" id="partsList"></div>
 
-        <label><span>Additional Notes</span><textarea id="notes" rows="4" placeholder="Any extra notes or customer advice"></textarea></label>
+        <label>
+          <span>Additional Notes</span>
+          <textarea id="notes" rows="4" placeholder="Any extra notes or customer advice"></textarea>
+        </label>
+
         <div class="button-row">
           <button class="btn primary" id="printBtn" type="button">Print / Save PDF</button>
           <button class="btn" id="emailBtn" type="button">Send Email</button>
           <button class="btn" id="sampleBtn" type="button">Load Sample</button>
           <button class="btn danger" id="clearBtn" type="button">Clear</button>
         </div>
-        <p class="small-note">PDF email attachment is not automatic in this web version. Use <strong>Print / Save PDF</strong>, then attach it manually if required.</p>
+
+        <p class="small-note">For PDF email: use <strong>Print / Save PDF</strong>, then attach the saved PDF manually.</p>
       </section>
 
       <section class="preview-wrap">
-        <div class="preview-toolbar"><h2>Preview</h2><span id="saveStatus">Saved locally</span></div>
+        <div class="preview-toolbar">
+          <h2>Preview</h2>
+          <span id="saveStatus">Saved locally</span>
+        </div>
+
         <article class="job-card" id="jobCard">
-          <div class="job-card-top"><div><h2 data-preview="companyName">Your Workshop Name</h2><p>Professional Workshop Job Card</p></div><div class="job-number-box"><span>JOB CARD</span><strong data-preview="jobNumber">-</strong></div></div>
+          <div class="job-card-top">
+            <div>
+              <h2 data-preview="companyName">Your Workshop Name</h2>
+              <p>Professional Workshop Job Card</p>
+            </div>
+            <div class="job-number-box">
+              <span>JOB CARD</span>
+              <strong data-preview="jobNumber">-</strong>
+            </div>
+          </div>
+
           <div class="status-badge" id="previewStatus">IN PROGRESS</div>
           <div class="accent-line"></div>
-          <div class="info-grid three"><div><span>Date</span><strong data-preview="jobDate">-</strong></div><div><span>Engineer</span><strong data-preview="engineer">-</strong></div><div><span>Labour Hours</span><strong data-preview="labourHours">-</strong></div></div>
-          <h3>Customer</h3><div class="info-grid two"><div><span>Customer Name</span><strong data-preview="customerName">-</strong><span>Contact Details</span><strong data-preview="contactDetails">-</strong></div><div><span>Address</span><strong data-preview="address">-</strong></div></div>
-          <h3>Machine</h3><div class="info-grid three"><div><span>Machine</span><strong data-preview="machine">-</strong></div><div><span>Serial Number</span><strong data-preview="serialNumber">-</strong></div><div><span>Machine Hours</span><strong data-preview="machineHours">-</strong></div></div>
-          <h3>Fault Reported</h3><div class="text-box" data-preview="faultReported">-</div>
-          <h3>Work Carried Out</h3><div class="text-box large" data-preview="workCarriedOut">-</div>
-          <h3>Parts Used</h3><div class="parts-preview" id="partsPreview"></div>
-          <h3>Additional Notes</h3><div class="text-box" data-preview="notes">-</div>
-          <div class="signature-grid"><div><span>Engineer Signature</span><div class="signature-line"></div></div><div><span>Customer Signature</span><div class="signature-line"></div></div></div>
+
+          <div class="info-grid three">
+            <div><span>Date</span><strong data-preview="jobDate">-</strong></div>
+            <div><span>Engineer</span><strong data-preview="engineer">-</strong></div>
+            <div><span>Labour Hours</span><strong data-preview="labourHours">-</strong></div>
+          </div>
+
+          <h3>Customer</h3>
+          <div class="info-grid two">
+            <div>
+              <span>Customer Name</span><strong data-preview="customerName">-</strong>
+              <span>Contact Details</span><strong data-preview="contactDetails">-</strong>
+            </div>
+            <div><span>Address</span><strong data-preview="address">-</strong></div>
+          </div>
+
+          <h3>Machine</h3>
+          <div class="info-grid three">
+            <div><span>Machine</span><strong data-preview="machine">-</strong></div>
+            <div><span>Serial Number</span><strong data-preview="serialNumber">-</strong></div>
+            <div><span>Machine Hours</span><strong data-preview="machineHours">-</strong></div>
+          </div>
+
+          <h3>Fault Reported</h3>
+          <div class="text-box" data-preview="faultReported">-</div>
+
+          <h3>Work Carried Out</h3>
+          <div class="text-box large" data-preview="workCarriedOut">-</div>
+
+          <h3>Parts Used</h3>
+          <div class="parts-preview" id="partsPreview"></div>
+
+          <h3>Additional Notes</h3>
+          <div class="text-box" data-preview="notes">-</div>
+
           <p class="footer-note">Generated by Workshop Job Card Generator</p>
         </article>
       </section>
     </main>
   </div>
+
+  <div class="scanner-modal hidden" id="scannerModal">
+    <div class="scanner-card">
+      <div class="scanner-header">
+        <h2>Scan Part Barcode</h2>
+        <button class="btn danger small" id="closeScannerBtn" type="button">Close</button>
+      </div>
+      <video id="scannerVideo" playsinline></video>
+      <p id="scannerStatus" class="helper">Point the camera at a barcode.</p>
+    </div>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>

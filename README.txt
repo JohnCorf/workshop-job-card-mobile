@@ -1,30 +1,28 @@
-Workshop Job Card Generator - Mobile PWA V2
+Workshop Job Card Generator - Mobile PWA V3
 
 Access code:
 lurch2026
 
-WHAT CHANGED:
-- Added access-code screen.
-- Mobile layout now shows the form first, then the preview.
-- Fixed mobile date input sizing.
-- Removed the word Asset.
-- Preview made less dominant.
-- Added Job Complete yes/no status.
-- Reworked Parts Used into Part Number, Description and Quantity rows.
-- Added Add Part and Delete Part controls.
-- Email body now includes structured parts and job status.
-- PDF attachment is not automatic in this browser-only version.
+V3 changes:
+- Signature section removed.
+- Parts Used changed to clearer card-style entry.
+- Add Part creates a visually separate part card.
+- Barcode scan button added for part number where the browser supports camera barcode scanning.
+- Save Job and Load Saved Jobs added.
+- Export Job and Import Job JSON added.
+- Customer Database added.
+- Preview remains below the form on mobile.
 
-HOW TO UPDATE GITHUB:
+How to update GitHub:
 1. Extract this ZIP.
-2. Open your existing GitHub Desktop repository folder.
-3. Replace the old files with these new files.
-4. GitHub Desktop will show changed files.
-5. In Summary, type: V2 updates
-6. Click Commit to main.
-7. Click Push origin.
+2. Copy all files into your existing GitHub repository folder.
+3. Replace the old files.
+4. Open GitHub Desktop.
+5. Summary: V3 updates
+6. Commit to main.
+7. Push origin.
 8. Wait 1 to 3 minutes.
-9. Open the GitHub Pages link and refresh.
+9. Refresh your GitHub Pages link.
 
-IMPORTANT:
-If your phone still shows the old version, it may be cached. Refresh Safari or delete/re-add the Home Screen shortcut.
+Note:
+Barcode scanning depends on browser support and camera permissions. If unsupported, users can still type the part number manually.
