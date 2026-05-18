@@ -1,38 +1,30 @@
-Workshop Job Card Generator - Mobile PWA
+Workshop Job Card Generator - Mobile PWA V2
 
-This is a mobile-friendly Progressive Web App version.
+Access code:
+lurch2026
 
-HOW TO TEST LOCALLY:
-1. Open the folder.
-2. Double-click index.html.
-3. Test the form, preview, print and email buttons.
+WHAT CHANGED:
+- Added access-code screen.
+- Mobile layout now shows the form first, then the preview.
+- Fixed mobile date input sizing.
+- Removed the word Asset.
+- Preview made less dominant.
+- Added Job Complete yes/no status.
+- Reworked Parts Used into Part Number, Description and Quantity rows.
+- Added Add Part and Delete Part controls.
+- Email body now includes structured parts and job status.
+- PDF attachment is not automatic in this browser-only version.
+
+HOW TO UPDATE GITHUB:
+1. Extract this ZIP.
+2. Open your existing GitHub Desktop repository folder.
+3. Replace the old files with these new files.
+4. GitHub Desktop will show changed files.
+5. In Summary, type: V2 updates
+6. Click Commit to main.
+7. Click Push origin.
+8. Wait 1 to 3 minutes.
+9. Open the GitHub Pages link and refresh.
 
 IMPORTANT:
-The Add to Home Screen/offline app behaviour works best after hosting online.
-
-FREE HOSTING OPTION:
-Use Netlify:
-1. Go to netlify.com.
-2. Create a free account.
-3. Drag the entire WorkshopJobCardMobilePWA folder onto Netlify's deploy area.
-4. Open the generated link on iPhone Safari.
-5. Tap Share > Add to Home Screen.
-
-IPHONE USE:
-- Open the hosted link in Safari.
-- Tap Share.
-- Tap Add to Home Screen.
-- The app will appear like a normal app icon.
-
-WHAT IT INCLUDES:
-- Mobile-first responsive layout.
-- Live job card preview.
-- Local saving in the browser.
-- Print / Save PDF through browser print.
-- Send Email using the device email app.
-- Offline caching after first load when hosted.
-
-NOTES:
-- No Apple Developer account required.
-- No App Store required.
-- No backend required.
+If your phone still shows the old version, it may be cached. Refresh Safari or delete/re-add the Home Screen shortcut.
