@@ -1,8 +1,8 @@
 const accessPassword = "lurch2026";
-const accessStorageKey = "southworx-job-card-access-v3";
-const storageKey = "southworx-workshop-current-job-v3";
-const jobsKey = "southworx-workshop-saved-jobs-v3";
-const customersKey = "southworx-workshop-customers-v3";
+const accessStorageKey = "southworx-job-card-access-v4";
+const storageKey = "southworx-workshop-current-job-v4";
+const jobsKey = "southworx-workshop-saved-jobs-v4";
+const customersKey = "southworx-workshop-customers-v4";
 
 const fields = ["companyName","jobNumber","jobDate","engineer","labourHours","machineHours","customerName","contactDetails","address","machine","serialNumber","faultReported","workCarriedOut","notes"];
 let parts = [];
@@ -110,16 +110,6 @@ function renderSavedJobs(){
   list.querySelectorAll("[data-load-job]").forEach(b=>b.onclick=()=>{const job=getSavedJobs().find(j=>j.id===b.dataset.loadJob);if(job)setData(job);});
   list.querySelectorAll("[data-delete-job]").forEach(b=>b.onclick=()=>setSavedJobs(getSavedJobs().filter(j=>j.id!==b.dataset.deleteJob)));
 }
-function exportJob(){
-  const data=getData(); const filename=`job-card-${clean(data.jobNumber).replaceAll(" ","-")}.json`;
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=filename; a.click(); URL.revokeObjectURL(a.href);
-}
-function importJob(file){
-  if(!file)return; const reader=new FileReader();
-  reader.onload=()=>{try{setData(JSON.parse(reader.result));qs("saveStatus").textContent="Job imported";}catch{alert("Could not import this job file.");}};
-  reader.readAsText(file);
-}
 
 function getCustomers(){try{return JSON.parse(localStorage.getItem(customersKey))||[];}catch{return[];}}
 function setCustomers(c){localStorage.setItem(customersKey,JSON.stringify(c));renderCustomers();}
@@ -165,9 +155,19 @@ function clearForm(){
 function loadSample(){
   setData({companyName:"SouthWorx Workshop Services",jobNumber:"J-000124",jobDate:today,engineer:"J. Smith",labourHours:"3.5",machineHours:"4,280",jobComplete:"yes",customerName:"Greenfield Farm",contactDetails:"office@example.co.uk / 01234 567890",address:"Greenfield Farm\nWinchester Road\nHampshire",machine:"Massey Ferguson Large Square Baler",serialNumber:"MF2270-123456",faultReported:"Customer reported inconsistent knotter performance and intermittent missed bales during operation.",workCarriedOut:"Inspected knotter assembly, checked twine path, adjusted tension settings, cleaned debris from knotter area and carried out operational test.",parts:[{partNumber:"TW-2451",description:"Twine disc",quantity:"2"},{partNumber:"SP-1098",description:"Knotter spring",quantity:"1"},{partNumber:"CONS",description:"Workshop consumables",quantity:"1"}],notes:"Machine tested after adjustment. Customer advised to monitor knotter performance during next working session."});
 }
+
+function makePartsEmailTable(usableParts){
+  if(!usableParts.length) return "-";
+  const headers = ["Part Number", "Part Description", "Quantity Used"];
+  const rows = usableParts.map(p => [clean(p.partNumber), clean(p.description), clean(p.quantity)]);
+  const widths = headers.map((h, i) => Math.max(h.length, ...rows.map(r => r[i].length)) + 4);
+  const formatRow = row => row.map((cell, i) => String(cell).padEnd(widths[i], " ")).join("");
+  return [formatRow(headers), formatRow(widths.map(w => "-".repeat(Math.max(3, w - 4)))), ...rows.map(formatRow)].join("\n");
+}
+
 function sendEmail(){
   const d=getData(); const usable=parts.filter(p=>clean(p.partNumber)!=="-"||clean(p.description)!=="-"||clean(p.quantity)!=="-");
-  const partsText=usable.length?usable.map(p=>`Part Number: ${clean(p.partNumber)} | Description: ${clean(p.description)} | Qty: ${clean(p.quantity)}`).join("\n"):"-";
+  const partsText=makePartsEmailTable(usable);
   const subject=`Workshop Job Card ${clean(d.jobNumber)} - ${clean(d.customerName)}`;
   const body=["Workshop Job Card","",`Status: ${d.jobComplete==="yes"?"Complete":"In Progress"}`,`Company: ${clean(d.companyName)}`,`Job Number: ${clean(d.jobNumber)}`,`Date: ${formatDate(d.jobDate)}`,`Engineer: ${clean(d.engineer)}`,`Labour Hours: ${clean(d.labourHours)}`,"",`Customer: ${clean(d.customerName)}`,`Contact: ${clean(d.contactDetails)}`,`Address: ${clean(d.address)}`,"",`Machine: ${clean(d.machine)}`,`Serial Number: ${clean(d.serialNumber)}`,`Machine Hours: ${clean(d.machineHours)}`,"","Fault Reported:",clean(d.faultReported),"","Work Carried Out:",clean(d.workCarriedOut),"","Parts Used:",partsText,"","Additional Notes:",clean(d.notes),"","Note: To send a PDF copy, use Print / Save PDF first and attach the saved PDF manually."].join("\n");
   window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -177,7 +177,7 @@ qs("unlockBtn").onclick=unlockApp; qs("accessCode").onkeydown=e=>{if(e.key==="En
 fields.forEach(id=>qs(id).addEventListener("input",updatePreview));
 document.querySelectorAll('input[name="jobComplete"]').forEach(r=>r.addEventListener("change",updatePreview));
 qs("addPartBtn").onclick=addPart; qs("printBtn").onclick=()=>window.print(); qs("emailBtn").onclick=sendEmail; qs("sampleBtn").onclick=loadSample; qs("clearBtn").onclick=clearForm;
-qs("saveJobBtn").onclick=saveJob; qs("exportJobBtn").onclick=exportJob; qs("importJobInput").onchange=e=>importJob(e.target.files[0]); qs("saveCustomerBtn").onclick=saveCustomer; qs("closeScannerBtn").onclick=stopScanner;
+qs("saveJobBtn").onclick=saveJob; qs("saveCustomerBtn").onclick=saveCustomer; qs("closeScannerBtn").onclick=stopScanner;
 qs("jobDate").value=today; checkAccess(); loadSavedCurrent(); renderSavedJobs(); renderCustomers(); updatePreview();
 
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));}

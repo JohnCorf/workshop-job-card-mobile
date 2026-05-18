@@ -1,4 +1,4 @@
-const CACHE_NAME="workshop-job-card-generator-v3";
+const CACHE_NAME="workshop-job-card-generator-v4";
 const APP_FILES=["./","./index.html","./styles.css","./app.js","./manifest.json","./icon.svg"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(APP_FILES)));self.skipWaiting();});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))));self.clients.claim();});
