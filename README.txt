@@ -1,23 +1,23 @@
-Workshop Job Card Generator - Mobile PWA V4
+Workshop Job Card Generator - Mobile PWA V6
 
 Access code:
 lurch2026
 
-V4 changes:
-- Removed Import Job and Export Job buttons.
-- Saved Jobs and Customer Database lists now become scrollable after they grow.
-- Removed "Professional Workshop Job Card" from the preview header.
-- Added a subtle SouthWorx watermark and cleaner footer.
-- Email parts section now uses a table-style plain text format:
-  Part Number | Part Description | Quantity Used
+V6 changes:
+- Barcode scanning removed.
+- Workshop Settings added.
+- Upload your own workshop logo.
+- Add workshop phone and email.
+- Custom footer text.
+- Add up to 3 job photos from phone camera/gallery.
+- Photos now appear on preview/PDF.
+- Cleaner workshop branding.
 
-How to update GitHub:
-1. Extract this ZIP.
-2. Copy all files into your existing GitHub repository folder.
-3. Replace the old files.
-4. Open GitHub Desktop.
-5. Summary: V4 updates
-6. Commit to main.
-7. Push origin.
-8. Wait 1 to 3 minutes.
-9. Refresh your GitHub Pages link.
+Update GitHub:
+1. Extract ZIP
+2. Replace old repo files
+3. GitHub Desktop:
+   Summary = V6 workshop branding + photos
+4. Commit to main
+5. Push origin
+6. Refresh website/app

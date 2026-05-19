@@ -45,6 +45,7 @@
 
         <div class="quick-actions">
           <button class="btn primary" id="saveJobBtn" type="button">Save Job</button>
+          <button class="btn" id="settingsBtn" type="button">Workshop Settings</button>
         </div>
 
         <details class="manager-box">
@@ -156,6 +157,16 @@
 
         <div class="parts-list" id="partsList"></div>
 
+        <div class="parts-header">
+          <div>
+            <h2>Job Photos</h2>
+            <p>Add up to 3 workshop photos.</p>
+          </div>
+          <button class="btn small" id="managePhotosBtn" type="button">Manage Photos</button>
+        </div>
+
+        <div id="inlinePhotoPreview" class="inline-photo-preview"></div>
+
         <label>
           <span>Additional Notes</span>
           <textarea id="notes" rows="4" placeholder="Any extra notes or customer advice"></textarea>
@@ -181,6 +192,7 @@
           <div class="job-card-watermark">SOUTHWORX</div>
 
           <div class="job-card-top">
+            <img id="previewLogo" class="preview-logo hidden" alt="Workshop Logo" />
             <div>
               <h2 data-preview="companyName">Your Workshop Name</h2>
             </div>
@@ -192,6 +204,12 @@
 
           <div class="status-badge" id="previewStatus">IN PROGRESS</div>
           <div class="accent-line"></div>
+
+          <div class="workshop-contact-line">
+            <span id="previewWorkshopPhone">-</span>
+            <span>•</span>
+            <span id="previewWorkshopEmail">-</span>
+          </div>
 
           <div class="info-grid three">
             <div><span>Date</span><strong data-preview="jobDate">-</strong></div>
@@ -224,6 +242,9 @@
           <h3>Parts Used</h3>
           <div class="parts-preview" id="partsPreview"></div>
 
+          <h3>Job Photos</h3>
+          <div id="previewPhotos" class="preview-photos"></div>
+
           <h3>Additional Notes</h3>
           <div class="text-box" data-preview="notes">-</div>
 
@@ -244,6 +265,59 @@
     </div>
   </div>
 
+  
+  <div class="settings-modal hidden" id="settingsModal">
+    <div class="settings-card">
+      <div class="settings-header">
+        <h2>Workshop Settings</h2>
+        <button class="btn danger small" id="closeSettingsBtn" type="button">Close</button>
+      </div>
+
+      <div class="grid two">
+        <label>
+          <span>Workshop Phone</span>
+          <input id="workshopPhone" type="text" placeholder="01234 567890" />
+        </label>
+
+        <label>
+          <span>Workshop Email</span>
+          <input id="workshopEmail" type="text" placeholder="info@workshop.co.uk" />
+        </label>
+      </div>
+
+      <label>
+        <span>Footer Text</span>
+        <input id="footerText" type="text" placeholder="Created with SouthWorx Workshop Job Card Generator" />
+      </label>
+
+      <label>
+        <span>Workshop Logo</span>
+        <input id="logoUpload" type="file" accept="image/*" />
+      </label>
+
+      <div class="quick-actions">
+        <button class="btn primary" id="saveSettingsBtn" type="button">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="photo-modal hidden" id="photoModal">
+    <div class="settings-card">
+      <div class="settings-header">
+        <h2>Job Photos</h2>
+        <button class="btn danger small" id="closePhotoBtn" type="button">Close</button>
+      </div>
+
+      <label>
+        <span>Add Photos</span>
+        <input id="photoUpload" type="file" accept="image/*" multiple capture="environment" />
+      </label>
+
+      <div id="photoPreviewGrid" class="photo-preview-grid"></div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
+
 </body>
 </html>

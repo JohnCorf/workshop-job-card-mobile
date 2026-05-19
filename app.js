@@ -3,12 +3,12 @@ const accessStorageKey = "southworx-job-card-access-v4";
 const storageKey = "southworx-workshop-current-job-v4";
 const jobsKey = "southworx-workshop-saved-jobs-v4";
 const customersKey = "southworx-workshop-customers-v4";
+const settingsKey = "southworx-workshop-settings-v6";
+const photosKey = "southworx-workshop-photos-v6";
+let photos = [];
 
 const fields = ["companyName","jobNumber","jobDate","engineer","labourHours","machineHours","customerName","contactDetails","address","machine","serialNumber","faultReported","workCarriedOut","notes"];
 let parts = [];
-let scanningPartIndex = null;
-let scannerStream = null;
-let scannerTimer = null;
 const today = new Date().toISOString().slice(0,10);
 
 function qs(id){return document.getElementById(id);}
@@ -24,13 +24,15 @@ function checkAccess(){if(localStorage.getItem(accessStorageKey)==="unlocked")sh
 function getJobComplete(){return document.querySelector('input[name="jobComplete"]:checked')?.value || "no";}
 function getData(){
   const data={}; fields.forEach(id=>data[id]=qs(id).value);
-  data.jobComplete=getJobComplete(); data.parts=parts; data.updatedAt=new Date().toISOString();
+  data.jobComplete=getJobComplete(); data.parts=parts; data.photos=photos; data.updatedAt=new Date().toISOString();
   return data;
 }
 function setData(data){
   fields.forEach(id=>{if(qs(id)&&data[id]!==undefined)qs(id).value=data[id];});
   const radio=document.querySelector(`input[name="jobComplete"][value="${data.jobComplete||"no"}"]`); if(radio)radio.checked=true;
   parts=Array.isArray(data.parts)&&data.parts.length?data.parts:[{partNumber:"",description:"",quantity:""}];
+  photos=Array.isArray(data.photos)?data.photos:[];
+  renderPhotoPreviews();
   renderPartsEditor(); updatePreview();
 }
 function loadSavedCurrent(){
@@ -49,6 +51,8 @@ function updatePreview(){
   const status=qs("previewStatus");
   if(data.jobComplete==="yes"){status.textContent="COMPLETE";status.classList.add("complete");}else{status.textContent="IN PROGRESS";status.classList.remove("complete");}
   renderPartsPreview();
+  renderPhotoPreviews();
+  loadSettingsIntoPreview();
   localStorage.setItem(storageKey,JSON.stringify(data));
   qs("saveStatus").textContent="Saved locally";
 }
@@ -66,27 +70,34 @@ function renderPartsEditor(){
         <label><span>Part Number</span><input type="text" value="${escapeHtml(part.partNumber)}" data-part-field="partNumber" data-part-index="${index}" placeholder="e.g. 123456" /></label>
         <label><span>Description</span><input type="text" value="${escapeHtml(part.description)}" data-part-field="description" data-part-index="${index}" placeholder="Part description" /></label>
         <label><span>Qty</span><input type="text" inputmode="numeric" value="${escapeHtml(part.quantity)}" data-part-field="quantity" data-part-index="${index}" placeholder="1" /></label>
-      </div>
-      <div class="part-card-actions">
-        <button class="btn small" type="button" data-scan-part="${index}">Scan Barcode</button>
       </div>`;
     list.appendChild(div);
   });
   list.querySelectorAll("[data-part-field]").forEach(input=>input.addEventListener("input",e=>{const i=+e.target.dataset.partIndex;parts[i][e.target.dataset.partField]=e.target.value;updatePreview();}));
   list.querySelectorAll("[data-delete-part]").forEach(btn=>btn.addEventListener("click",e=>{parts.splice(+e.target.dataset.deletePart,1);if(!parts.length)parts.push({partNumber:"",description:"",quantity:""});renderPartsEditor();updatePreview();}));
-  list.querySelectorAll("[data-scan-part]").forEach(btn=>btn.addEventListener("click",e=>startScanner(+e.target.dataset.scanPart)));
-}
+  }
 function renderPartsPreview(){
   const usable=parts.filter(p=>clean(p.partNumber)!=="-"||clean(p.description)!=="-"||clean(p.quantity)!=="-");
   if(!usable.length){qs("partsPreview").innerHTML='<div class="parts-empty">-</div>';return;}
-  qs("partsPreview").innerHTML=usable.map((p,i)=>`
-    <div class="preview-part-card">
-      <div class="preview-part-grid">
-        <div><span>Part Number</span><strong>${escapeHtml(clean(p.partNumber))}</strong></div>
-        <div><span>Description</span><strong>${escapeHtml(clean(p.description))}</strong></div>
-        <div><span>Qty</span><strong>${escapeHtml(clean(p.quantity))}</strong></div>
-      </div>
-    </div>`).join("");
+  const rows = usable.map(p=>`
+    <tr>
+      <td>${escapeHtml(clean(p.partNumber))}</td>
+      <td>${escapeHtml(clean(p.description))}</td>
+      <td class="qty-cell">${escapeHtml(clean(p.quantity))}</td>
+    </tr>
+  `).join("");
+  qs("partsPreview").innerHTML=`
+    <table>
+      <thead>
+        <tr>
+          <th>Part Number</th>
+          <th>Part Description</th>
+          <th class="qty-cell">Qty Used</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
 }
 function addPart(){parts.push({partNumber:"",description:"",quantity:""});renderPartsEditor();updatePreview();}
 
@@ -130,23 +141,103 @@ function renderCustomers(){
   list.querySelectorAll("[data-delete-customer]").forEach(b=>b.onclick=()=>setCustomers(getCustomers().filter(c=>c.id!==b.dataset.deleteCustomer)));
 }
 
-async function startScanner(index){
-  scanningPartIndex=index;
-  if(!("BarcodeDetector" in window)){alert("Barcode scanning is not supported in this browser yet. You can still type the part number manually.");return;}
+
+
+
+function getSettings(){
   try{
-    qs("scannerModal").classList.remove("hidden"); qs("scannerStatus").textContent="Starting camera...";
-    scannerStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
-    qs("scannerVideo").srcObject=scannerStream; await qs("scannerVideo").play();
-    const detector=new BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code"]});
-    scannerTimer=setInterval(async()=>{try{const codes=await detector.detect(qs("scannerVideo"));if(codes.length){parts[scanningPartIndex].partNumber=codes[0].rawValue;stopScanner();renderPartsEditor();updatePreview();}}catch{}},700);
-    qs("scannerStatus").textContent="Point the camera at the barcode.";
-  }catch{stopScanner();alert("Camera could not be opened. Check browser permissions.");}
+    return JSON.parse(localStorage.getItem(settingsKey)) || {};
+  }catch{return {};}
 }
-function stopScanner(){
-  if(scannerTimer)clearInterval(scannerTimer); scannerTimer=null;
-  if(scannerStream)scannerStream.getTracks().forEach(t=>t.stop()); scannerStream=null;
-  qs("scannerVideo").srcObject=null; qs("scannerModal").classList.add("hidden");
+
+function saveSettings(){
+  const settings = {
+    workshopPhone: qs("workshopPhone").value,
+    workshopEmail: qs("workshopEmail").value,
+    footerText: qs("footerText").value,
+    logo: localStorage.getItem("southworx-logo-v6") || ""
+  };
+  localStorage.setItem(settingsKey, JSON.stringify(settings));
+  loadSettingsIntoPreview();
+  qs("settingsModal").classList.add("hidden");
 }
+
+function loadSettingsIntoFields(){
+  const s = getSettings();
+  qs("workshopPhone").value = s.workshopPhone || "";
+  qs("workshopEmail").value = s.workshopEmail || "";
+  qs("footerText").value = s.footerText || "";
+}
+
+function loadSettingsIntoPreview(){
+  const s = getSettings();
+  if(qs("previewWorkshopPhone")) qs("previewWorkshopPhone").textContent = s.workshopPhone || "-";
+  if(qs("previewWorkshopEmail")) qs("previewWorkshopEmail").textContent = s.workshopEmail || "-";
+  const footer = document.querySelector(".footer-note");
+  if(footer) footer.textContent = s.footerText || "Created with SouthWorx Workshop Job Card Generator";
+
+  const logo = qs("previewLogo");
+  if(s.logo){
+    logo.src = s.logo;
+    logo.classList.remove("hidden");
+  }else{
+    logo.classList.add("hidden");
+  }
+}
+
+function handleLogoUpload(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    localStorage.setItem("southworx-logo-v6", reader.result);
+    const settings = getSettings();
+    settings.logo = reader.result;
+    localStorage.setItem(settingsKey, JSON.stringify(settings));
+    loadSettingsIntoPreview();
+  };
+  reader.readAsDataURL(file);
+}
+
+function handlePhotoUpload(files){
+  const selected = Array.from(files).slice(0,3);
+  photos = [];
+  if(!selected.length){
+    renderPhotoPreviews();
+    return;
+  }
+
+  let loaded = 0;
+  selected.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      photos.push(reader.result);
+      loaded++;
+      if(loaded === selected.length){
+        renderPhotoPreviews();
+        updatePreview();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderPhotoPreviews(){
+  const inline = qs("inlinePhotoPreview");
+  const preview = qs("previewPhotos");
+
+  if(!inline || !preview) return;
+
+  if(!photos.length){
+    inline.innerHTML = '<p class="helper">No photos added.</p>';
+    preview.innerHTML = '<div class="parts-empty">-</div>';
+    return;
+  }
+
+  const imgs = photos.map(p=>`<img src="${p}" />`).join("");
+  inline.innerHTML = imgs;
+  preview.innerHTML = imgs;
+}
+
 
 function clearForm(){
   fields.forEach(id=>qs(id).value=""); qs("jobDate").value=today; document.querySelector('input[name="jobComplete"][value="no"]').checked=true;
@@ -168,8 +259,11 @@ function makePartsEmailTable(usableParts){
 function sendEmail(){
   const d=getData(); const usable=parts.filter(p=>clean(p.partNumber)!=="-"||clean(p.description)!=="-"||clean(p.quantity)!=="-");
   const partsText=makePartsEmailTable(usable);
+  const settings = getSettings();
   const subject=`Workshop Job Card ${clean(d.jobNumber)} - ${clean(d.customerName)}`;
-  const body=["Workshop Job Card","",`Status: ${d.jobComplete==="yes"?"Complete":"In Progress"}`,`Company: ${clean(d.companyName)}`,`Job Number: ${clean(d.jobNumber)}`,`Date: ${formatDate(d.jobDate)}`,`Engineer: ${clean(d.engineer)}`,`Labour Hours: ${clean(d.labourHours)}`,"",`Customer: ${clean(d.customerName)}`,`Contact: ${clean(d.contactDetails)}`,`Address: ${clean(d.address)}`,"",`Machine: ${clean(d.machine)}`,`Serial Number: ${clean(d.serialNumber)}`,`Machine Hours: ${clean(d.machineHours)}`,"","Fault Reported:",clean(d.faultReported),"","Work Carried Out:",clean(d.workCarriedOut),"","Parts Used:",partsText,"","Additional Notes:",clean(d.notes),"","Note: To send a PDF copy, use Print / Save PDF first and attach the saved PDF manually."].join("\n");
+  const body=["Workshop Job Card","",
+`Workshop Phone: ${settings.workshopPhone || "-"}`,
+`Workshop Email: ${settings.workshopEmail || "-"}`,"",`Status: ${d.jobComplete==="yes"?"Complete":"In Progress"}`,`Company: ${clean(d.companyName)}`,`Job Number: ${clean(d.jobNumber)}`,`Date: ${formatDate(d.jobDate)}`,`Engineer: ${clean(d.engineer)}`,`Labour Hours: ${clean(d.labourHours)}`,"",`Customer: ${clean(d.customerName)}`,`Contact: ${clean(d.contactDetails)}`,`Address: ${clean(d.address)}`,"",`Machine: ${clean(d.machine)}`,`Serial Number: ${clean(d.serialNumber)}`,`Machine Hours: ${clean(d.machineHours)}`,"","Fault Reported:",clean(d.faultReported),"","Work Carried Out:",clean(d.workCarriedOut),"","Parts Used:",partsText,"","Additional Notes:",clean(d.notes),"","Note: To send a PDF copy, use Print / Save PDF first and attach the saved PDF manually."].join("\n");
   window.location.href=`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
@@ -177,7 +271,29 @@ qs("unlockBtn").onclick=unlockApp; qs("accessCode").onkeydown=e=>{if(e.key==="En
 fields.forEach(id=>qs(id).addEventListener("input",updatePreview));
 document.querySelectorAll('input[name="jobComplete"]').forEach(r=>r.addEventListener("change",updatePreview));
 qs("addPartBtn").onclick=addPart; qs("printBtn").onclick=()=>window.print(); qs("emailBtn").onclick=sendEmail; qs("sampleBtn").onclick=loadSample; qs("clearBtn").onclick=clearForm;
-qs("saveJobBtn").onclick=saveJob; qs("saveCustomerBtn").onclick=saveCustomer; qs("closeScannerBtn").onclick=stopScanner;
+qs("saveJobBtn").onclick=saveJob; qs("saveCustomerBtn").onclick=saveCustomer;
 qs("jobDate").value=today; checkAccess(); loadSavedCurrent(); renderSavedJobs(); renderCustomers(); updatePreview();
 
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));}
+
+
+qs("settingsBtn").onclick=()=>{
+  loadSettingsIntoFields();
+  qs("settingsModal").classList.remove("hidden");
+};
+
+qs("closeSettingsBtn").onclick=()=>qs("settingsModal").classList.add("hidden");
+qs("saveSettingsBtn").onclick=saveSettings;
+
+qs("logoUpload").onchange=e=>{
+  if(e.target.files[0]) handleLogoUpload(e.target.files[0]);
+};
+
+qs("managePhotosBtn").onclick=()=>qs("photoModal").classList.remove("hidden");
+qs("closePhotoBtn").onclick=()=>qs("photoModal").classList.add("hidden");
+
+qs("photoUpload").onchange=e=>{
+  handlePhotoUpload(e.target.files);
+};
+
+loadSettingsIntoPreview();

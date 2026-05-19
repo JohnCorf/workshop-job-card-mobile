@@ -63,12 +63,9 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
 .info-grid span{display:block;color:#5f6670;font-size:.72rem;font-weight:800;margin:0 0 4px}.info-grid strong{display:block;font-size:.88rem;font-weight:600;white-space:pre-line;overflow-wrap:anywhere;margin-bottom:9px}
 .job-card h3{margin:14px 0 7px;color:var(--accent);text-transform:uppercase;font-size:.8rem;letter-spacing:.04em;position:relative;z-index:1}
 .text-box{border:1px solid var(--line);min-height:66px;padding:10px;white-space:pre-line;overflow-wrap:anywhere;font-size:.86rem;line-height:1.42;position:relative;z-index:1;background:rgba(255,255,255,.88)}.text-box.large{min-height:92px}
-.parts-preview{display:grid;gap:8px;position:relative;z-index:1}.preview-part-card{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(255,255,255,.92)}.preview-part-grid{display:grid;grid-template-columns:1fr 1.4fr 60px;gap:10px}.preview-part-grid span{display:block;color:#5f6670;font-size:.66rem;font-weight:900;text-transform:uppercase}.preview-part-grid strong{display:block;font-size:.86rem;margin-top:3px;overflow-wrap:anywhere}.parts-empty{border:1px solid var(--line);padding:10px;color:var(--muted);font-size:.86rem;background:#fff}
+.parts-preview{position:relative;z-index:1;border:1px solid var(--line);background:rgba(255,255,255,.94);overflow:hidden}.parts-preview table{width:100%;border-collapse:collapse;font-size:.84rem}.parts-preview th{background:#f1f5f9;color:#334155;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;padding:9px 8px;border-bottom:1px solid var(--line)}.parts-preview td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}.parts-preview tr:last-child td{border-bottom:0}.parts-preview .qty-cell{width:82px;text-align:center}.parts-empty{padding:10px;color:var(--muted);font-size:.86rem;background:#fff}
 .footer-note{margin:20px 0 0;text-align:center;color:#8a94a3;font-size:.72rem;position:relative;z-index:1}
-.scanner-modal{position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1000;display:grid;place-items:center;padding:18px}
-.scanner-card{width:min(520px,100%);background:#fff;border-radius:18px;padding:16px}
-.scanner-header{display:flex;justify-content:space-between;gap:10px;align-items:center}.scanner-header h2{margin:0;font-size:1.1rem}
-#scannerVideo{width:100%;min-height:260px;background:#111;border-radius:12px;margin-top:12px}
+
 @media(max-width:920px){.app-shell{grid-template-columns:1fr}.preview-wrap{order:2}.form-card{order:1}}
 @media(max-width:620px){
   .app-header{padding-left:14px;padding-right:14px}.app-shell{padding:12px}.form-card,.preview-wrap{padding:14px;border-radius:14px}
@@ -77,7 +74,42 @@ input:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(
   .saved-item{grid-template-columns:1fr}.saved-item .btn{width:100%}
   .scrollable-list{max-height:300px}
 }
+
+@media(max-width:620px){
+  .parts-preview table{font-size:.8rem}
+  .parts-preview th,.parts-preview td{padding:8px 6px}
+  .parts-preview .qty-cell{width:54px}
+}
+
 @media print{
   body{background:white}.app-header,.form-card,.preview-toolbar,.lock-screen{display:none!important}.app-content.locked{display:block}
   .app-shell{display:block;padding:0;margin:0;width:100%}.preview-wrap{border:0;box-shadow:none;padding:0}.job-card{width:100%;border:0;padding:16mm}
+}
+
+
+.settings-modal,.photo-modal{
+position:fixed;inset:0;background:rgba(15,23,42,.72);z-index:1000;
+display:grid;place-items:center;padding:18px
+}
+.settings-card{
+width:min(640px,100%);background:#fff;border-radius:18px;padding:18px
+}
+.settings-header{
+display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px
+}
+.preview-logo{
+max-width:120px;max-height:70px;object-fit:contain;margin-bottom:10px
+}
+.workshop-contact-line{
+display:flex;gap:10px;align-items:center;
+font-size:.82rem;color:#64748b;margin-bottom:10px;flex-wrap:wrap
+}
+.photo-preview-grid,.inline-photo-preview,.preview-photos{
+display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px
+}
+.photo-preview-grid img,.inline-photo-preview img,.preview-photos img{
+width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:12px;border:1px solid var(--line)
+}
+.preview-photos{
+margin-bottom:10px
 }
